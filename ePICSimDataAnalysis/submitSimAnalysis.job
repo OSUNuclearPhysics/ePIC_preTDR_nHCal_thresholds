@@ -1,0 +1,44 @@
+# submitSimAnalysis.job -- submit sim analysis
+
+Universe        		= vanilla
+GetEnv          		= False
+#InteractiveJob 			= False
+
+# Use singularity image
+#+SingularityImage="/cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl:nightly"
++SingularityImage="/cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl:23.06.1-stable"
+
+# The requirement line specifies which machines we want to run this job on.  Any arbitrary classad expression can be used.
+Requirements    = (CPU_Speed >= 1)
+
+# Rank is an expression that states how to rank machines which have already met the requirements expression. Essentially, 
+# rank expresses preference.  A higher numeric value equals better rank.  Condor will give the job the machine with the highest rank.
+Rank		= CPU_Speed
+
+# Jobs by default get 1.4Gb of RAM allocated, ask for more if needed but if a job needs
+#more than 2Gb it will not be able to run on the older nodes
+#request_memory = 1800M
+
+# If you need multiple cores you can ask for them, but the scheduling may take longer the "larger" a job you ask for
+#request_cpus = 1
+
+# Used to give jobs a directory with respect to file input and output.
+Initialdir      = /gpfs/mnt/gpfs02/eic/lkosarzew/Calorimetry/SimDataAnalysis
+
+executable              = runSimAnaBatch.sh
+arguments               = filesSim_SimCampaign_q2_0_1_edm4hep.list condorSim/output/hcal_$(Cluster)_$(Process)_SimAna.root 10 $(Process) $(Cluster)
+
+transfer_input_files    = readTreeSim.C,data/filesSim_SimCampaign_q2_0_1_edm4hep.list,runSimAnaBatch.sh,FileList.h,EICutil.h,HistogramsSim.h,BasicUtil.h
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT_OR_EVICT
+transfer_output_files   = condorSim
+
+
+Error                   = condorSim/stderr/$(Cluster)_$(Process).err
+Output                  = condorSim/stdout/$(Cluster)_$(Process).out
+Log                     = condorSim/log/$(Cluster)_$(Process).log
+
+#+Experiment     = "experiment"
+#+Job_Type       = "cas"
+
+Queue 160

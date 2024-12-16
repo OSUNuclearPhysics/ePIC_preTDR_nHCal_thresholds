@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job minFilesPerProcess="20" maxFilesPerProcess="30" filesPerHour="40" simulateSubmission="false" fileListSyntax="xrootd">
+
+<command> 
+	        
+	#curl -L get.athena-eic.org | bash
+	
+	set EICSHELL=/gpfs02/eic/lkosarzew/Calorimetry/SimDataAnalysis/eic-shell
+	
+	#source /opt/detector/setup.sh
+		
+		
+	set ENV_VARS="source /opt/detector/setup.sh export S3_ACCESS_KEY=eicS3read export S3_SECRET_KEY=eicS3read"
+	
+	## Environment
+	
+	#source /opt/detector/setup.sh
+	
+	#export S3_ACCESS_KEY=eicS3read
+	#export S3_SECRET_KEY=eicS3read
+	
+	#export LOCAL_PREFIX=/gpfs02/eic/lkosarzew/Calorimetry/SimDataAnalysis
+	
+	#source ${LOCAL_PREFIX}/ip6/install/setup.sh
+	#source ${LOCAL_PREFIX}/epic/install/setup.sh
+	
+	#export DETECTOR_PATH=/gpfs02/eic/lkosarzew/Calorimetry/SimDataAnalysis/epic/install/share/epic
+	#export DETECTOR_PREFIX=/gpfs02/eic/lkosarzew/Calorimetry/SimDataAnalysis/epic/install
+	
+	### Export detector libraries
+	#export LD_LIBRARY_PATH=${LOCAL_PREFIX}/epic/install/lib:$LD_LIBRARY_PATH
+	#\n
+	
+	#END
+	
+	#)
+	
+	
+	echo ${FILELIST}
+	cat ${FILELIST}
+		
+	echo -e ${ENV_VARS} root -l -b -q 'readTreeSim.C+(\"${FILELIST}\", \"${JOBID}.root\")''
+	echo -e ${ENV_VARS} root -l -b -q 'readTreeSim.C+(\"${FILELIST}\", \"${JOBID}.root\")' | ${EICSHELL}
+	
+</command> 
+
+<SandBox installer="ZIP">
+        <Package>
+        	<File>file:./readTreeSim.C</File>
+        	<File>file:./epic/install</File>
+        </Package>
+</SandBox>
+
+<input URL="filelist:/gpfs02/eic/lkosarzew/Calorimetry/SimDataAnalysis/data/xrootd_filesSim_SimCampaign_q2_0_1_edm4hep.list"/>
+
+<Generator>
+		<Location>./outputSUMS/script/</Location>
+		<ScriptLocation>./outputSUMS/script/</ScriptLocation>
+</Generator>
+
+<stdout URL="file:./outputSUMS/stdout/$JOBID.out"/>
+
+<stderr URL="file:./outputSUMS/stderr/$JOBID.err"/>
+
+<output fromScratch="*.root" toURL="file:/gpfs02/eic/lkosarzew/Calorimetry/SimDataAnalysis/outputSUMS/output/" />
+
+</job>
+
